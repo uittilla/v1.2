@@ -1,0 +1,16 @@
+<div id='wrapper' style='position:absolute;left:0px;top:0px;width:100%;height:100%;'>
+<canvas id='canvas' width='4000' height='3000' style='background:black'></canvas>
+<div>
+
+script(type='text/javascript', src="/socket.io/socket.io.js")
+script(type='text/javascript', src="/javascripts/bison.js")
+script(type='text/javascript', src='/javascripts/client.js')
+
+<div id="setup" style="position:absolute; top:20%; left:45%; right: 45%; background:white;">
+<input id="user" value="Enter player name" onclick="this.value='';" /> <br />
+<strong>Defender MK3</strong>  <br />
+<input type="radio" name="fighter" id="fighter" value="0"><img src="/images/fighter.png" /></input> <br />
+<strong>Vulcan</strong>  <br />
+<input type="radio" name="fighter" id="fighter1" value="1" checked=checked><img src="/images/fighter1.png" /></input> <br />
+<button id="go" onclick="go()" value="Play Now" />Play Now</button>
+</div>
