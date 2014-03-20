@@ -1,9 +1,33 @@
 {
-    "name": "application-name"
-  , "version": "0.0.1"
-  , "private": true
-  , "dependencies": {
-      "express": "2.5.8"
-    , "jade": ">= 0.0.1"
-  }
+  "name": "multi_ast_v2d",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "2.5.8",
+    "jade": ">= 0.0.1",
+    "bison": "~1.1.1",
+    "socket.io": "0.9.16" 
+  },
+  "description": "Multiplayer Game in NodeJs",
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uittilla/v1.2.git"
+  },
+  "keywords": [
+    "Multiplayer",
+    "Game",
+    "NodeJs",
+    "Vector2d"
+  ],
+  "author": "Mark Ibbotson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uittilla/v1.2/issues"
+  },
+  "homepage": "https://github.com/uittilla/v1.2"
 }

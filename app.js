@@ -1,36 +1,22 @@
+"use strict";
+
 /**
  * Module dependencies.
  */
 
-var express, routes, v1, Player, BISON, app, io, redisPort, redisHostname, redis, RedisStore, pub, sub, client;
+var express, routes, v1, Player, BISON, app, io, Game, game, Enemy;
 
 express = require('express');
-routes = require('./routes');
-v1 = require('./v1');
-Player = require('./player');
-BISON = require('bison');
+routes  = require('./routes');
+Game    = require('./model/game');
+Player  = require('./model/player');
+Enemy   = require('./model/enemy');
+BISON   = require('bison');
 
 app = module.exports = express.createServer();
 io = require('socket.io').listen(app);
 
-redisPort = 6379;
-redisHostname = 'localhost';
-
-
-redis = require('redis');
-RedisStore = require('socket.io/lib/stores/redis');
-pub = redis.createClient(redisPort, redisHostname);
-sub = redis.createClient(redisPort, redisHostname);
-client = redis.createClient(redisPort, redisHostname);
-
-io.set('store', new RedisStore({
-    redisPub:pub,
-    redisSub:sub,
-    redisClient:client
-}));
-
 // Configuration
-
 app.configure(function () {
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
@@ -67,50 +53,50 @@ io.configure(function () {
     ]);
 });
 
+var Kb = require('./model/keyboard');
+
+var Keyboard = new Kb();
+
 io.sockets.on('connection', function (socket) {
 
-    var player = Object.create(Player);
-
     socket.on('register', function (data) {
-        v1.players[socket.id] = player.init(socket.id, data);     // add the new player
+        game.players[socket.id] = new Player(socket.id, data);     // add the new player
         socket.emit("ID", socket.id);
     });
 
     socket.on('keyup', function (event) {
         var data = BISON.decode(event);
-        if (v1.players[data.id]) {
-            v1.players[data.id].end_move = v1.unixTime();
-            v1.keyEvent(data.key, data.type, data.id);
+        if (game.players[data.id]) {
+            game.players[data.id].end_move = game.unixTime();
+            Keyboard.keyEvent(data.key, data.type, game.players[data.id]);
         }
     });
 
     socket.on('keydown', function (event) {
         var data = BISON.decode(event);
-        if (v1.players[data.id]) {
-            v1.players[data.id].start_move = v1.unixTime();
-            v1.keyEvent(data.key, data.type, data.id);
+        if (game.players[data.id]) {
+            game.players[data.id].start_move = game.unixTime();
+            Keyboard.keyEvent(data.key, data.type, game.players[data.id]);
         }
     });
 
     socket.on('disconnect', function () {
         var that = this;
         io.sockets.emit('remove', that.id);
-        delete v1.players[this.id];
+        delete game.players[this.id];
     });
 });
 
 var dataStream = [];
+game = new Game();
+
+var FPS = 200;
 
 setInterval(function () {
-    v1.v1();
+    game.worker();
 
-    dataStream[0] = v1.players;
-    dataStream[1] = v1.enemies;
+    dataStream[0] = game.getPlayers();
+    dataStream[1] = game.getEnemies();
 
-    var bdata = BISON.encode(dataStream);
-
-    io.sockets.emit('update', bdata);
+    io.sockets.emit('update', BISON.encode(dataStream));
 }, 50);
-
-
-/*//console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);*/
